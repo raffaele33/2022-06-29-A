@@ -7,6 +7,7 @@ package it.polito.tdp.itunes;
 import java.net.URL;
 import java.util.ResourceBundle;
 import it.polito.tdp.itunes.model.Album;
+import it.polito.tdp.itunes.model.AlbumP;
 import it.polito.tdp.itunes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +36,7 @@ public class FXMLController {
     private Button btnPercorso; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA1"
-    private ComboBox<?> cmbA1; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA2"
     private ComboBox<?> cmbA2; // Value injected by FXMLLoader
@@ -51,17 +52,31 @@ public class FXMLController {
 
     @FXML
     void doCalcolaAdiacenze(ActionEvent event) {
+    	txtResult.clear();
+    	for(AlbumP a: this.model.getAdiacenze(cmbA1.getValue())) {
+    		txtResult.appendText(a.toString()+"\n");
+    	}
     	
     }
-
     @FXML
-    void doCalcolaPercorso(ActionEvent event) {
+     void doCalcolaPercorso(ActionEvent event) {
     	
     }
-
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	
+        txtResult.clear();
+        cmbA1.getItems().clear();
+        int n;
+        try {
+      	  n=Integer.parseInt(txtN.getText());
+      	  
+        }catch(NumberFormatException e) {
+      	  txtResult.setText("inserire un numero intero di canzoni");
+      	  return;
+        }
+        this.model.CreaGrafo(n);
+        txtResult.appendText("grafo creato con "+this.model.getVert()+" vertici e " +this.model.getArchi()+" archi !!");
+        cmbA1.getItems().addAll(this.model.getAlbum());
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

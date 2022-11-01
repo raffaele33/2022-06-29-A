@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 import it.polito.tdp.itunes.model.Album;
+import it.polito.tdp.itunes.model.AlbumP;
 import it.polito.tdp.itunes.model.Artist;
 import it.polito.tdp.itunes.model.Genre;
 import it.polito.tdp.itunes.model.MediaType;
@@ -16,9 +19,9 @@ import it.polito.tdp.itunes.model.Track;
 
 public class ItunesDAO {
 	
-	public List<Album> getAllAlbums(){
+	public void getAllAlbums(Map<Integer,Album> map){
 		final String sql = "SELECT * FROM Album";
-		List<Album> result = new LinkedList<>();
+		
 		
 		try {
 			Connection conn = DBConnect.getConnection();
@@ -26,14 +29,15 @@ public class ItunesDAO {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(new Album(res.getInt("AlbumId"), res.getString("Title")));
+				Album a =new Album(res.getInt("AlbumId"), res.getString("Title"));
+				map.put(a.getAlbumId(), a);
 			}
 			conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("SQL Error");
 		}
-		return result;
+	
 	}
 	
 	public List<Artist> getAllArtists(){
@@ -138,5 +142,30 @@ public class ItunesDAO {
 		}
 		return result;
 	}
+	public List<AlbumP> getVertici(int n,Map<Integer,Album> m){
+		
+		final String sql = "SELECT t.AlbumId AS a, COUNT(t.TrackId) AS c "
+				+ "FROM track t "
+				+ "GROUP BY t.AlbumId "
+				+ "HAVING COUNT(t.TrackId)>?";
+		List<AlbumP> result = new LinkedList<>();
+		
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, n);
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				result.add(new AlbumP(m.get(res.getInt("a")),res.getInt("c")));
+			}
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("SQL Error");
+		}
+		return result;
+	}
+
 	
 }
